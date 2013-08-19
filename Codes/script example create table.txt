@@ -1,0 +1,61 @@
+create table borrowers
+	(
+	b_id bigint identity(1,1),
+	fname varchar(50),
+	lname varchar(50),
+	mi varchar(50),
+	addr varchar(50),
+	phone varchar(50),
+	gender varchar(50),
+	b_date varchar(50),
+constraint borrowers_pk primary key(b_id));
+
+
+create table item
+	(
+	item_id bigint identity(1,1),
+	name	varchar(50),
+	descrip varchar(50),
+
+constraint item_pk primary key(item_id));
+
+create table quantity
+	(
+	q_id	bigint identity(1,1),
+	item_id	bigint,
+	date_added	varchar(50),
+	quantity	varchar(50),
+constraint quantity_pk primary key(q_id),
+constraint quantity_fk foreign key(item_id) references item(item_id)
+on delete cascade
+on update cascade);
+
+create table available
+ (
+	a_id bigint identity(1,1),
+	item_id bigint,
+	available varchar(50),
+constraint available_PK primary key(a_id),
+constraint available_FK foreign key(item_id) references item(item_id)
+on delete cascade 
+on update cascade);
+
+create table borrowed
+	(
+	b_id bigint identity(1,1),
+	item_id bigint,
+	quantity varchar(50),
+	borrowed_date varchar(50),
+constraint borrowers_fk1 foreign key(b_id) references borrowers(b_id),
+constraint borrowers_fk2 foreign key(item_id) references item(item_id)
+on delete cascade
+on update cascade);
+
+
+create table node
+ (
+  code varchar(50),
+  description varchar(50),
+  parent varchar(50)
+primary key (code));
+

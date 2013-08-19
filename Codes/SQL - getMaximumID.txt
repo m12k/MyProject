@@ -1,0 +1,56 @@
+use inventory
+declare @str varchar(50)
+select 
+  @str = max(substring(quantity,1,6)) + 1
+from quantity
+where
+item_id = '1';
+
+select @str;
+
+____________________________________________ 
+
+use inventory
+declare @str varchar(50)
+select 
+  @str = max(right(quantity,3)) + 1
+from quantity
+where
+item_id = '1';
+
+select @str;
+
+_____________________________________________
+
+create function dbo.GetMaxId (
+@table varchar(50),
+@lenght int
+)
+returns varchar(50)
+as
+begin
+
+declare @ret varchar(50)
+declare @year varchar(50)
+
+set @year = year(getdate())
+
+if @table = 'node' 
+  if (select count(code) from node) = 0
+	begin
+		set @ret = 'node-' + @year + '-' + '100001'  
+	end
+  else
+	begin
+		select @ret = max(right(code,@lenght)) + 1
+		from node;
+		set @ret = 'node-' + @year + '-' + @ret
+	end
+return @ret
+end
+ 
+ 
+
+select dbo.getmaxid('node','6')
+
+

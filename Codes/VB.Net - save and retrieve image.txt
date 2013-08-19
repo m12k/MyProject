@@ -1,0 +1,22 @@
+
+---Open dialog
+
+     Me.OpenFileDialog1.Filter = "Known graphics format (*.bmp,*.jpg,*.gif,*.png)|*.bmp;*.jpg;*.gif;*.jpeg;*.png"
+     Me.OpenFileDialog1.ShowDialog()
+     Me.TextBoxImage.Text = Me.OpenFileDialog1.FileName
+     If Me.TextBoxImage.Text <> "" Then
+          Me.PictureBox1.Image = Image.FromFile(Me.TextBoxImage.Text)
+     End If
+
+-----Save image
+
+     System.IO.File.Copy(Me.TextBoxImage.Text, AppDomain.CurrentDomain.BaseDirectory + "\pictures\" + Me.Textlastname.Text + "  " + Me.Textfirstname.Text + ".inv", True)
+
+-----Retrieve
+       
+       System.IO.File.Delete(AppDomain.CurrentDomain.BaseDirectory + "\Pictures\" + Me.Textlastname.Text + "  " + Me.Textfirstname.Text + ".inv")
+       System.IO.File.Copy(Me.TextBoxImage.Text, AppDomain.CurrentDomain.BaseDirectory + "\pictures\" + Me.Textlastname.Text + "  " + Me.Textfirstname.Text + ".inv", True)
+       
+
+
+       

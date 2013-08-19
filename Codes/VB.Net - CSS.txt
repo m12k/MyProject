@@ -1,0 +1,134 @@
+  ---CSS
+
+ Public Sub FormatControl(ByVal UsrCtrl As Control)
+        Dim en As IEnumerator
+        With UsrCtrl
+            .BackColor = Me.FormBackColor
+
+            en = .Controls.GetEnumerator
+            While en.MoveNext
+                FormatControl(en.Current)
+                FormatObject(en.Current)
+            End While
+        End With
+    End Sub
+
+ Private Sub FormatObject(ByVal ctrl As Object)
+
+        Select Case ctrl.GetType.Name
+
+            Case "UltraButton"
+                FormatButton(ctrl)
+
+            Case "UltraOptionSet"
+                FormatOptionSet(ctrl)
+
+            Case "UltraLabel"
+                FormatLabel(ctrl)
+
+            Case "UltraTextEditor"
+                FormatTextBox(ctrl)
+
+            Case "UltraCurrencyEditor"
+                FormatCurrencyEditor(ctrl)
+
+            Case "UltraCombo"
+                FormatComboBox(ctrl)
+
+            Case "UltraComboEditor"
+                FormatComboBoxEditor(ctrl)
+
+            Case "UltraGrid"
+                FormatGrid(ctrl)
+
+                'Case "UltraCalendarCombo"
+                '    FormatCalendarCombo(ctrl)
+
+            Case "UltraTree"
+                FormatTree(ctrl)
+
+            Case "UltraToolbarsDockArea"
+                FormatToolBar(ctrl)
+
+            Case "UltraDateTimeEditor"
+                FormatDateTimeEditor(ctrl)
+
+            Case "UltraCalendarCombo"
+                FormatCalendarCombo(ctrl)
+
+            Case "UltraTabControl"
+                FormatTab(ctrl)
+
+            Case "UltraOptionSet"
+                FormatOptions(ctrl)
+
+            Case "UltraCheckEditor"
+                FormatCheck(ctrl)
+
+            Case "UltraDropDown"
+                FormatDropDown(ctrl)
+
+            Case "UltraNumericEditor"
+                FormatNumericTextbox(ctrl)
+            Case "UltraWinProgressBar"
+                FormatProgressBar(ctrl)
+
+            Case "Panel"
+                DirectCast(ctrl, System.Windows.Forms.Panel).BackColor = Me.FormBackColor
+
+        End Select
+
+    End Sub
+
+
+
+Private Sub FormatButton(ByVal UButton As Infragistics.Win.Misc.UltraButton)
+        With UButton
+            .UseAppStyling = True
+            .ShowFocusRect = False
+
+            .UseFlatMode = Infragistics.Win.DefaultableBoolean.True
+            .UseOsThemes = Infragistics.Win.DefaultableBoolean.False
+            .UseHotTracking = Infragistics.Win.DefaultableBoolean.True
+
+            '.ShowFocusRect = False
+            .ButtonStyle = ButtonStyle
+            '.UseAppStyling = False
+
+            ''.ButtonStyle = Infragistics.Win.UIElementButtonStyle.FlatBorderless
+
+            ''.Size = BtnSize
+            ''.Size = New System.Drawing.Size(64, 22)
+
+            .Appearance = BtnAppearance
+            .HotTrackAppearance = BtnHoverAppearance
+            .PressedAppearance = BtnPressedAppearance
+        End With
+
+    End Sub
+
+
+----MDI
+
+   Dim OpenForms() As Form
+        Dim OriginalForm As New Form
+        Dim isOpened As Boolean = False
+        OpenForms = Me.MdiChildren
+
+        For Each f As Form In OpenForms
+            If f.Text = "Inventory Library Import Tool" Then
+                isOpened = True
+                OriginalForm = f
+                Exit For
+            End If
+        Next
+        If Not isOpened Then
+            Dim frm As New FormInventoryLibraryImportTool
+            With frm
+                .Text = "Inventory Library Import Tool"
+                .MdiParent = Me
+                .Show()
+            End With
+        Else
+            OriginalForm.Focus()
+        End If

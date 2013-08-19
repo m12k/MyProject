@@ -1,0 +1,116 @@
+create table _user_t
+(id int not null IDENTITY(1,1),
+ lname varchar(50),
+ mi VARCHAR(5),
+ fname varchar(50),
+ primary key (id));
+ 
+ create table _skills
+  (id int,
+  skill varchar(50)
+  foreign key (id) references _user_t(id) on DELETE CASCADE
+  );
+  
+  insert into _skills values('4','kaon')
+
+
+
+
+insert into _user_t (fname,mi,lname)values('mikel','a','cj')
+insert into _skills (id,skill) values ('1','kaon')
+ 
+_____________________________PROCEDURE_________________________________
+
+create procedure _save_user
+@id int,
+@fname varchar(50),
+@mi VARCHAR(5),
+@lname varchar(50)
+
+as
+
+if not EXISTS(select * from _user_t where id = @id)
+begin 
+insert into _user_t (fname,mi,lname) values (@fname,@mi,@lname)
+END
+
+else
+
+begin
+update _user_t set fname = @fname, mi=@mi, lname = @lname 
+where id like @id
+end
+
+create procedure _select_user
+as
+begin
+select * from _user_t
+end
+
+create procedure _select_user_by_id
+@id INT
+as
+begin
+select * from _user_t where id = @id
+end
+
+___________________FUNCTION Example_______________________________
+create function dbo.name (
+@id varchar(50)
+)
+returns varchar(50)
+as
+begin
+
+declare @res varchar(50)
+
+select @res = fname
+from _user_t where id = @id
+
+return @res
+
+end
+
+___________________TRIGGER Example________________________________
+http://developer.postgresql.org/pgdocs/postgres/plpgsql-trigger.html
+
+ALTER TRIGGER [dbo].[_tri_user_s] ON [dbo].[_user_t]
+WITH EXECUTE AS CALLER
+FOR INSERT
+AS
+BEGIN
+ declare @id varchar(50),
+         @mi varchar(50)
+         
+     SELECT
+        @id = id,
+        @mi = mi
+     FROM INSERTED
+     
+   if @mi = 'a'
+    BEGIN
+     insert into _skills 
+     values(@id,'kaon')
+   END
+     
+END
+GO
+______________Delete Trigger_____________
+ALTER TRIGGER [dbo].[_tri_del_skill] ON [dbo].[_user_t]
+WITH EXECUTE AS CALLER
+INSTEAD OF DELETE
+AS
+BEGIN
+  Declare @id VARCHAR(50)
+  
+  select @id = id from deleted
+  begin
+  	delete from _skills where id = @id
+  end
+END
+GO
+___
+If @@Rowcount = 0
+     Return
+Delete from dbo._skills
+where id In (Select id from deleted)

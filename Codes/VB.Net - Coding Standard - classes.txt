@@ -1,0 +1,183 @@
+---Form
+call class
+
+ 
+----Class
+Public Class ClassMain
+    Private cConnection As New clsconnection
+    Private _title As String
+
+
+    Property title() As String
+        Get
+            title = _title
+        End Get
+        Set(ByVal value As String)
+            _title = value
+        End Set
+    End Property
+
+    Public Sub New(ByVal t As String)
+        'constructor
+        title = t
+        'storing the value of x in constructor
+    End Sub
+
+    Public Function display() As Integer
+        With FormBrowser
+            .DataGridView1.DataSource = Me.fetchData
+            .Show()
+        End With
+
+    End Function
+    Private Function fetchData() As SqlClient.SqlDataReader
+        Try
+            Dim dt As SqlClient.SqlDataReader
+            dt = cConnection.sqldatareader("Select * from borrowers")
+            Return dt
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+    Public Function getMaxTestId() As String
+        Try
+            Dim sql As String = sql_getMaxId()
+            sql = cConnection.exeScalar(sql)
+            sql = "Test-" & Now.Year & "-" + sql
+            Return sql
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+    Private Function sql_getMaxId() As String
+        Try
+            Dim sql As String
+            sql = "select dbo.getmaxid('" & "testid" & "','" & "6" & "')"
+            Return sql
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+End Class
+
+
+
+---ClassConnection
+
+Public Class clsconnection
+     
+    Private Shared Function con() As String
+       
+        con = "Data Source=.\SQLEXPRESS;Initial Catalog=inventory;Integrated Security=True"
+
+    End Function
+    Public Function sqldatareader(ByVal str As String) As SqlClient.SqlDataReader
+
+        Dim DbConn As New SqlClient.SqlConnection(con)
+        Try
+            Dim cm As New SqlClient.SqlCommand(str, DbConn)
+            Dim red As SqlClient.SqlDataReader
+            DbConn.Open()
+            red = cm.ExecuteReader()
+            Return red
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+       Sub execommand(ByVal str As String)
+
+        Dim DbConn As New SqlClient.SqlConnection(con)
+        Try
+            Dim cm As New SqlClient.SqlCommand(str, DbConn)
+            DbConn.Open()
+            cm.ExecuteNonQuery()
+        Finally
+            If DbConn.State = ConnectionState.Open Then
+                DbConn.Close()
+            End If
+        End Try
+
+    End Sub
+    Public Shared Sub DbRunTran(ByVal sSQLs As ArrayList)
+        Dim DbConn As New SqlClient.SqlConnection(con)
+        Dim SqlTrans As SqlClient.SqlTransaction
+
+        DbConn.Open()
+        SqlTrans = DbConn.BeginTransaction()
+
+        Try
+            For Each sSQL As String In sSQLs
+                Dim CmdSql As New SqlClient.SqlCommand(sSQL, DbConn)
+                With CmdSql
+                    .Transaction = SqlTrans
+                    .ExecuteNonQuery()
+                End With
+            Next
+            SqlTrans.Commit()
+        Catch ex As Exception
+            SqlTrans.Rollback()
+            Throw ex 'New Exception("Data Entry Failed")
+        Finally
+
+            DbConn.Close()
+            DbConn.Dispose()
+        End Try
+
+    End Sub
+    Public Shared Function GetRowInfo(ByVal sSql As String) As DataRow
+        Dim sDa As New SqlClient.SqlDataAdapter(sSql, con)
+        Dim Dt As New DataTable
+        sDa.Fill(Dt)
+        sDa.Dispose()
+        If Dt.Rows.Count = 0 Then
+            Return Nothing
+        ElseIf Dt.Rows.Count > 1 Then
+            Throw New Exception("Multiple rows effected")
+        Else
+            Return Dt.Rows(0)
+        End If
+    End Function
+
+    Public Shared Function GetTableData(ByVal sSql As String) As DataTable
+
+        Dim sDa As New SqlClient.SqlDataAdapter(sSql, con)
+        Dim Dt As New DataTable
+        sDa.Fill(Dt)
+        sDa.Dispose()
+        Return Dt
+
+    End Function
+ 
+    Public Shared Sub executenonquery(ByVal sSql As String)
+        Dim DbConn As New SqlClient.SqlConnection(con)
+        Try
+            Dim cm As New SqlClient.SqlCommand(sSql, DbConn)
+            DbConn.Open()
+            cm.ExecuteNonQuery()
+        Finally
+            If DbConn.State = ConnectionState.Open Then
+                DbConn.Close()
+            End If
+        End Try
+
+    End Sub
+
+    Public Function exeScalar(ByVal sSql As String) As String
+        Try
+            Dim DbConn As New SqlClient.SqlConnection(con)
+            Try
+                Dim cm As New SqlClient.SqlCommand(sSql, DbConn)
+                DbConn.Open()
+                sSql = cm.ExecuteScalar
+                Return sSql
+            Finally
+                If DbConn.State = ConnectionState.Open Then
+                    DbConn.Close()
+                End If
+            End Try
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+End Class
